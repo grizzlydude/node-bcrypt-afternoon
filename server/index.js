@@ -5,6 +5,7 @@ const massive = require('massive')
 const {SERVER_PORT, CONNECTION_STRING, SESSION_SECRET} = process.env
 const authCtrl = require('./controllers/authController')
 const treasureCtrl = require('./controllers/treasureController')
+const auth = require('./middleware/authMiddleware')
 const app = express()
 
 app.use(express.json())
@@ -21,6 +22,9 @@ app.get('/auth/logout', authCtrl.logout)
 
 // END POINTS Treasure
 app.get('/api/treasure/dragon', treasureCtrl.dragonTreasure)
+app.get('/api/treasure/user', auth.usersOnly, treasureCtrl.getUserTreasure)
+app.post('/api/treasure/user', auth.usersOnly, treasureCtrl.addUserTreasure);
+app.get('/api/treasure/all', auth.usersOnly, auth.adminsOnly, treasureCtrl.getAllTreasure)
 
 massive(CONNECTION_STRING).then(db => {
     app.set('db', db)
